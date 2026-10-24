@@ -6,6 +6,15 @@ Zero external dependencies.
 import sys
 import argparse
 import json
+
+# Ensure robust UTF-8 output across Windows cp1252 / legacy consoles
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 from .blast_radius import analyze_diff
 from .slop_detector import scan_dependencies
 from .honeytoken import generate_canary, verify_canary, CanaryType

@@ -6,6 +6,15 @@ Zero external dependency: utilizes native ANSI color sequences and Unicode glyph
 import sys
 import json
 from typing import Dict, Any
+
+# Ensure robust UTF-8 output across Windows cp1252 / legacy consoles
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 from .blast_radius import BlastRadiusReport
 from .slop_detector import SlopScanReport
 from .command_shield import CommandAuditResult
