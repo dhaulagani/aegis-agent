@@ -38,6 +38,127 @@ As autonomous AI coding agents gain direct terminal and file-system write privil
 
 ---
 
+## 📐 Architecture & How It Works
+
+AegisAgent acts as an inline **Pre-Flight Sandbox & Defense Gate** placed between the Autonomous AI Agent and the Host Operating System / Git Repository.
+
+### 1. High-Level Defense Pipeline (Flowchart)
+
+```mermaid
+flowchart TD
+    subgraph AgentSpace["🤖 Autonomous AI Agent Space"]
+        Agent["AI Coding Agent<br/>(Claude Code, Antigravity, Devin, Aider)"]
+        ActionPlan{"Agent Planned Action"}
+        Agent --> ActionPlan
+    end
+
+    subgraph AegisGate["🛡️ AegisAgent Pre-Flight Interceptor"]
+        Router{"Action Type?"}
+        ActionPlan --> Router
+
+        %% Shell Command Path
+        subgraph ShieldEngine["⚡ Command Shield Engine"]
+            AuditCmd["Static Regex & Rule Matcher"]
+            CheckDestructive["Check Destructive Ops<br/>(rm -rf, dd, format, fork-bomb)"]
+            CheckNet["Check Reverse Shell & Exfil<br/>(nc, /dev/tcp, curl pipe)"]
+            CheckGit["Check Branch Safety<br/>(force-push origin main)"]
+            AuditCmd --> CheckDestructive
+            AuditCmd --> CheckNet
+            AuditCmd --> CheckGit
+        end
+
+        %% Patch / Diff Path
+        subgraph DiffEngine["🔍 Blast-Radius Engine"]
+            ParseDiff["Unified Diff Chunk Parser"]
+            TouchAudit["Sensitive File Monitor<br/>(.env, auth, crypto, payment)"]
+            SecretAudit["Entropy & Private Key Scanner<br/>(RSA, Tokens, Secrets)"]
+            ScoreCalc["Risk Score Aggregator<br/>(Score 0 to 100)"]
+            ParseDiff --> TouchAudit
+            ParseDiff --> SecretAudit
+            ParseDiff --> ScoreCalc
+        end
+
+        %% Dependency Path
+        subgraph SlopEngine["📦 Slopsquatting Shield"]
+            ParseManifest["Dependency Manifest Parser<br/>(requirements.txt / package.json)"]
+            DLDist["Damerau-Levenshtein Typo Guard<br/>(Edit Distance <= 1)"]
+            HallucinationRules["Synthetic Pattern Check<br/>(boto4, requests-python)"]
+            ParseManifest --> DLDist
+            ParseManifest --> HallucinationRules
+        end
+
+        %% Honeytoken Path
+        subgraph CanaryEngine["🍯 Honeytoken Trap System"]
+            GenToken["Generate Verifiable Trap Token<br/>(AWS, GitHub, OpenAI styles)"]
+            HMACSign["Embedded HMAC-SHA256 Checksum"]
+            VerifyToken["Offline Signature Attestation"]
+            GenToken --> HMACSign
+            VerifyToken --> HMACSign
+        end
+
+        Router -->|"Shell Command"| ShieldEngine
+        Router -->|"Code Patch / Diff"| DiffEngine
+        Router -->|"Dependency Edit"| SlopEngine
+        Router -->|"Canary Op"| CanaryEngine
+    end
+
+    subgraph DecisionMatrix["⚖️ Verdict & Execution Gate"]
+        Verdict{"Aegis Verdict"}
+        ShieldEngine --> Verdict
+        DiffEngine --> Verdict
+        SlopEngine --> Verdict
+
+        Pass["🟢 SAFE / PASS<br/>Execute action automatically"]
+        Warn["🟡 WARNING / REVIEW<br/>Requires Human Confirmation"]
+        Block["🔴 BLOCKED / FAIL-CLOSED<br/>Halt agent process & alert"]
+
+        Verdict -->|"Risk Score < 20 & Safe"| Pass
+        Verdict -->|"Risk Score 20-59"| Warn
+        Verdict -->|"Risk Score >= 60 or Blocked Rule"| Block
+    end
+
+    subgraph TargetEnv["💻 Host OS & Repository"]
+        Pass --> HostRuntime["Local Shell & Git Repository"]
+    end
+```
+
+### 2. Autonomous Agent Execution Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Developer / CI Pipeline
+    participant Agent as AI Coding Agent
+    participant Aegis as AegisAgent Shield
+    participant Env as OS Shell / Git VCS
+
+    Dev->>Agent: "Refactor auth logic & cleanup temporary logs"
+    Agent->>Agent: Plan execution & generate patch
+
+    rect rgb(240, 248, 255)
+    Note over Agent,Aegis: Pre-Flight Command Verification
+    Agent->>Aegis: aegis shield "rm -rf /var/log && git push -f origin main"
+    Aegis->>Aegis: Scan destructive commands & branch protection rules
+    Aegis-->>Agent: [BLOCKED] Score 100/100 (Disallowed force-push & wipe)
+    Agent->>Agent: Revise plan to safe non-destructive alternative
+    end
+
+    rect rgb(245, 255, 245)
+    Note over Agent,Aegis: Blast-Radius & Hallucination Verification
+    Agent->>Aegis: aegis diff patch.diff --strict
+    Aegis->>Aegis: Analyze AST churn, private keys & sensitive surfaces
+    Aegis-->>Agent: [SAFE] Blast Score: 12/100 (Minimal impact)
+    Agent->>Aegis: aegis deps requirements.txt
+    Aegis->>Aegis: Damerau-Levenshtein & Synthetic name audit
+    Aegis-->>Agent: [VERIFIED] All canonical dependencies clean
+    end
+
+    Agent->>Env: Execute verified actions safely
+    Env-->>Dev: Verified clean commit & PR (Zero Regression)
+```
+
+---
+
 ## ⚡ Quickstart
 
 ### 1. Installation
