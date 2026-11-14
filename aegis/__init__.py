@@ -11,6 +11,7 @@ from .blast_radius import analyze_diff, BlastRadiusReport
 from .slop_detector import scan_dependencies, SlopScanReport
 from .honeytoken import generate_canary, verify_canary, CanaryType
 from .command_shield import audit_command, CommandAuditResult
+from .topology import analyze_reasoning_topology, TopologyReport, BondType
 
 __all__ = [
     "analyze_diff",
@@ -22,4 +23,7 @@ __all__ = [
     "CanaryType",
     "audit_command",
     "CommandAuditResult",
+    "analyze_reasoning_topology",
+    "TopologyReport",
+    "BondType",
 ]

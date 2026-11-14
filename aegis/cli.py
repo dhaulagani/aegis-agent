@@ -19,13 +19,30 @@ from .blast_radius import analyze_diff
 from .slop_detector import scan_dependencies
 from .honeytoken import generate_canary, verify_canary, CanaryType
 from .command_shield import audit_command
+from .topology import analyze_reasoning_topology
 from .reporter import (
     render_blast_radius,
     render_slop_report,
     render_command_audit,
+    render_topology_report,
     print_banner,
     CYAN, GREEN, RED, BOLD, RESET
 )
+
+
+def cmd_topology(args):
+    """Analyze an AI agent's Chain-of-Thought (CoT) reasoning topology and entropy convergence."""
+    if args.file == "-" or not args.file:
+        trace_text = sys.stdin.read()
+    else:
+        with open(args.file, "r", encoding="utf-8", errors="ignore") as f:
+            trace_text = f.read()
+
+    report = analyze_reasoning_topology(trace_text)
+    render_topology_report(report, json_output=args.json)
+
+    if args.strict and report.isomer_state != "STABLE_CONVERGENT":
+        sys.exit(1)
 
 
 def cmd_diff(args):
@@ -130,6 +147,12 @@ def main():
     p_canary.add_argument("--secret", default="aegis_agent_canary_v1", help="HMAC secret salt")
     p_canary.add_argument("--json", action="store_true", help="Output in JSON")
 
+    # Subcommand: topology
+    p_top = subparsers.add_parser("topology", help="Audit AI Chain-of-Thought molecular topology & entropy convergence (arXiv:2601.06002)")
+    p_top.add_argument("file", nargs="?", default="-", help="Path to CoT trace file or '-' for stdin")
+    p_top.add_argument("--json", action="store_true", help="Output results in machine-readable JSON")
+    p_top.add_argument("--strict", action="store_true", help="Exit with non-zero code if isomer state is UNSTABLE or RIGID")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -144,6 +167,8 @@ def main():
         cmd_shield(args)
     elif args.command == "canary":
         cmd_canary(args)
+    elif args.command == "topology":
+        cmd_topology(args)
 
 
 if __name__ == "__main__":

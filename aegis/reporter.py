@@ -18,6 +18,7 @@ if hasattr(sys.stdout, "reconfigure"):
 from .blast_radius import BlastRadiusReport
 from .slop_detector import SlopScanReport
 from .command_shield import CommandAuditResult
+from .topology import TopologyReport, BondType
 
 # ANSI Color Codes
 RESET = "\033[0m"
@@ -148,3 +149,50 @@ def render_command_audit(result: CommandAuditResult, json_output: bool = False):
 
     print()
     print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+
+
+def render_topology_report(report: TopologyReport, json_output: bool = False):
+    if json_output:
+        print(json.dumps(report.to_dict(), indent=2))
+        return
+
+    print_banner()
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+    print(f"{BOLD}🧬 MOLECULAR CoT REASONING TOPOLOGY & ENTROPY AUDITOR{RESET}")
+    print(f"{DIM}   Based on arXiv:2601.06002 (The Molecular Structure of Thought){RESET}")
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+
+    # Isomer Badge
+    if report.isomer_state == "STABLE_CONVERGENT":
+        badge = f"{GREEN}{BOLD}[STABLE ISOMER / CONVERGENT]{RESET}"
+    elif report.isomer_state == "UNSTABLE_EXPLORATION":
+        badge = f"{RED}{BOLD}[UNSTABLE / EXCESSIVE DRIFT]{RESET}"
+    elif report.isomer_state == "RIGID_DEDUCTION":
+        badge = f"{YELLOW}{BOLD}[RIGID / UNVERIFIED BACKBONE]{RESET}"
+    else:
+        badge = f"{YELLOW}{BOLD}[NEUROTIC REFLECTION LOOP]{RESET}"
+
+    print(f"Total Steps     : {BOLD}{report.total_steps}{RESET} reasoning nodes")
+    print(f"Isomer State    : {badge}")
+    print(f"Entropy Trend   : {CYAN}{BOLD}{report.entropy_trend}{RESET}")
+    print()
+    print(f"{BOLD}Bond Distribution Ratio:{RESET}")
+    print(f"  • Covalent (Deep-Reasoning)  : {GREEN}{int(report.covalent_ratio * 100)}%{RESET} (Target: 60-75%)")
+    print(f"  • Hydrogen (Self-Reflection) : {CYAN}{int(report.hydrogen_ratio * 100)}%{RESET} (Target: 15-25%)")
+    print(f"  • Van der Waals (Exploration): {MAGENTA}{int(report.vdw_ratio * 100)}%{RESET} (Target: 10-20%)")
+    print()
+
+    if report.anomalies:
+        print(f"{BOLD}⚠️  TOPOLOGICAL ANOMALIES DETECTED:{RESET}")
+        for a in report.anomalies:
+            print(f"  {RED}✗{RESET} {a}")
+        print()
+
+    if report.recommendations:
+        print(f"{BOLD}💡 STRUCTURAL OPTIMIZATIONS:{RESET}")
+        for r in report.recommendations:
+            print(f"  {CYAN}▸{RESET} {r}")
+        print()
+
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+

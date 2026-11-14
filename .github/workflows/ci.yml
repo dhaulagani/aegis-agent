@@ -42,3 +42,4 @@ jobs:
           python -m aegis shield "ls -la"
           python -m aegis canary generate --type github
           python -m aegis canary verify --token "ghp_randomfaketoken"
+          python -m aegis topology tests/test_topology.py

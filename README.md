@@ -34,6 +34,7 @@ As autonomous AI coding agents gain direct terminal and file-system write privil
 - **📦 Slopsquatting & Hallucination Shield**: Audits `requirements.txt` and `package.json` against typosquats (Levenshtein distance) and common synthetic LLM package generation patterns.
 - **⚡ Agent Pre-Flight Command Shield**: Static risk analyzer for agent shell commands before terminal dispatch. Blocks wipe commands, raw disk writes, and force-pushes.
 - **🍯 Verifiable Honeytoken Generator**: Creates authentic-looking canary credentials (AWS, GitHub, OpenAI) with embedded offline HMAC checksums to detect data leaks and unauthorized training harvesting.
+- **🧬 Molecular CoT Reasoning Topology (arXiv:2601.06002)**: Audits AI Agent Chain-of-Thought traces into Covalent (Deep-Reasoning), Hydrogen (Self-Reflection), and Van der Waals (Exploration) bonds to measure semantic isomer stability and ensure monotonic entropy reduction.
 - **🎨 ANSI Terminal UI & JSON Mode**: Beautiful terminal dashboards for humans and machine-parseable JSON for CI/CD pipelines.
 
 ---
@@ -249,6 +250,34 @@ aegis canary generate --type github --id canary_prod_fixture
 Verify if a leaked credential was an Aegis canary or a real secret:
 ```bash
 aegis canary verify --token "ghp_4a1b8c2d..."
+```
+
+### 5. Audit AI Agent Reasoning Topology (arXiv:2601.06002)
+Verify that your autonomous agent's internal Chain-of-Thought (CoT) follows a stable molecular isomer rather than pathological hallucination or cognitive thrashing:
+
+```bash
+# Analyze agent reasoning trace directly:
+aegis topology reasoning_trace.log --strict
+```
+
+Output:
+```text
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧬 MOLECULAR CoT REASONING TOPOLOGY & ENTROPY AUDITOR
+   Based on arXiv:2601.06002 (The Molecular Structure of Thought)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Total Steps     : 6 reasoning nodes
+Isomer State    : [STABLE ISOMER / CONVERGENT]
+Entropy Trend   : MONOTONIC_DECREASING
+
+Bond Distribution Ratio:
+  • Covalent (Deep-Reasoning)  : 67% (Target: 60-75%)
+  • Hydrogen (Self-Reflection) : 17% (Target: 15-25%)
+  • Van der Waals (Exploration): 16% (Target: 10-20%)
+
+💡 STRUCTURAL OPTIMIZATIONS:
+  ▸ Reasoning topology matches optimal molecular isomer bounds. Safe for execution.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ---
