@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AegisAgent — Autonomous AI Coding Agent Safety Platform</title>
+  <meta name="description" content="High-speed, zero-dependency safety gate and risk auditor for Autonomous AI Coding Agents.">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --border: #1f293d;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-hover: #0ea5e9;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --code-bg: #030712;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Layout */
+    #sidebar {
+      width: 280px;
+      background: var(--card-bg);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    #content {
+      flex: 1;
+      padding: 40px 48px;
+      max-width: 1000px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .brand-badge {
+      font-size: 0.75rem;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .nav-group { margin-bottom: 24px; }
+    .nav-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding-left: 8px;
+    }
+    .nav-link {
+      display: block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .nav-link:hover, .nav-link.active {
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    /* Hero */
+    .hero {
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 32px;
+    }
+    .hero h1 { font-size: 2.25rem; font-weight: 800; color: #fff; margin-bottom: 12px; }
+    .hero p { font-size: 1.15rem; color: var(--muted); margin-bottom: 20px; }
+    .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .badge-pill {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .badge-pill.green { color: var(--accent); border-color: rgba(16, 185, 129, 0.3); }
+
+    /* Interactive Terminal */
+    .terminal-window {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      margin: 24px 0 40px;
+      overflow: hidden;
+    }
+    .terminal-header {
+      background: #111827;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .dot.red { background: #ef4444; }
+    .dot.yellow { background: #f59e0b; }
+    .dot.green { background: #10b981; }
+    .terminal-title {
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      margin-left: 8px;
+    }
+    .terminal-tabs {
+      display: flex;
+      gap: 4px;
+      background: #0b1120;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .tab-btn:hover { color: #fff; }
+    .tab-btn.active {
+      background: var(--card-bg);
+      color: var(--primary);
+      border-color: var(--border);
+    }
+    .terminal-body {
+      padding: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      min-height: 220px;
+    }
+
+    /* Grid Sections */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 32px 0;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+    .card-icon { font-size: 1.5rem; margin-bottom: 12px; }
+    .card h3 { font-size: 1.1rem; color: #fff; margin-bottom: 8px; }
+    .card p { font-size: 0.9rem; color: var(--muted); }
+
+    /* Code blocks */
+    pre code {
+      display: block;
+      background: var(--code-bg);
+      padding: 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      margin: 12px 0 20px;
+    }
+
+    /* Mobile */
+    @media (max-width: 860px) {
+      body { flex-direction: column; }
+      #sidebar { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--border); }
+      #content { padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <aside id="sidebar">
+    <div class="brand">
+      <span>🛡️ AegisAgent</span>
+      <span class="brand-badge">v1.2.0</span>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-title">Overview</div>
+      <a href="#hero" class="nav-link active">Home & Introduction</a>
+      <a href="#features" class="nav-link">Core Defense Engines</a>
+      <a href="#demo" class="nav-link">Live Terminal Demo</a>
+      <a href="#quickstart" class="nav-link">Quickstart & Install</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-title">Official Wiki Pages</div>
+      <a href="https://github.com/dhaulagani/aegis-agent/wiki" target="_blank" class="nav-link">📖 GitHub Wiki Hub ↗</a>
+      <a href="https://github.com/dhaulagani/aegis-agent/wiki/Architecture" target="_blank" class="nav-link">System Architecture ↗</a>
+      <a href="https://github.com/dhaulagani/aegis-agent/wiki/Command-Shield" target="_blank" class="nav-link">Command Shield ↗</a>
+      <a href="https://github.com/dhaulagani/aegis-agent/wiki/Blast-Radius-Engine" target="_blank" class="nav-link">Blast-Radius Engine ↗</a>
+      <a href="https://github.com/dhaulagani/aegis-agent/wiki/Molecular-CoT-Reasoning" target="_blank" class="nav-link">Molecular CoT Topology ↗</a>
+      <a href="https://github.com/dhaulagani/aegis-agent/wiki/Prompt-Injection-Quarantine" target="_blank" class="nav-link">Prompt Injection Quarantine ↗</a>
+      <a href="https://github.com/dhaulagani/aegis-agent/wiki/Incident-Ledger-Reputation" target="_blank" class="nav-link">Incident & Ledger ↗</a>
+      <a href="https://github.com/dhaulagani/aegis-agent/wiki/Adversarial-Ship-Gates" target="_blank" class="nav-link">Adversarial Ship Gates ↗</a>
+      <a href="https://github.com/dhaulagani/aegis-agent/wiki/Model-Context-Protocol-MCP" target="_blank" class="nav-link">MCP Server Setup ↗</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-title">Links</div>
+      <a href="https://github.com/dhaulagani/aegis-agent" target="_blank" class="nav-link">GitHub Repository ↗</a>
+      <a href="https://arxiv.org/abs/2601.06002" target="_blank" class="nav-link">arXiv:2601.06002 Paper ↗</a>
+    </div>
+  </aside>
+
+  <main id="content">
+    <section id="hero" class="hero">
+      <h1>Autonomous AI Coding Agent Safety Platform</h1>
+      <p>A high-speed, zero-dependency safety gate, blast-radius auditor, and hallucination shield for Claude Code, Antigravity, Devin, Aider, and custom LLM workflows.</p>
+
+      <div class="badges">
+        <span class="badge-pill green">✓ 100% Python Standard Library</span>
+        <span class="badge-pill green">✓ 0 External Dependencies</span>
+        <span class="badge-pill">Native MCP JSON-RPC Server</span>
+        <span class="badge-pill">arXiv:2601.06002 Molecular CoT</span>
+        <span class="badge-pill">MIT License</span>
+      </div>
+
+      <pre><code>pip install aegis-agent</code></pre>
+    </section>
+
+    <!-- Interactive Terminal -->
+    <section id="demo">
+      <h2>Interactive Live Terminal Simulation</h2>
+      <p style="color: var(--muted); margin-top: 4px;">Click any tab below to inspect AegisAgent's defensive evaluation in action:</p>
+
+      <div class="terminal-window">
+        <div class="terminal-header">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+          <span class="terminal-title">aegis-terminal-v1.2.0</span>
+        </div>
+        <div class="terminal-tabs">
+          <button class="tab-btn active" onclick="showDemo('shield')">1. Command Shield</button>
+          <button class="tab-btn" onclick="showDemo('quarantine')">2. Injection Quarantine</button>
+          <button class="tab-btn" onclick="showDemo('topology')">3. Molecular CoT</button>
+          <button class="tab-btn" onclick="showDemo('canary')">4. Honeytoken Traps</button>
+          <button class="tab-btn" onclick="showDemo('ledger')">5. Agent Ledger</button>
+          <button class="tab-btn" onclick="showDemo('gate')">6. Pre-Ship Gate</button>
+        </div>
+        <div class="terminal-body" id="term-output"></div>
+      </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section id="features">
+      <h2>Core Defensive Engines</h2>
+      <div class="feature-grid">
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <h3>Command Execution Shield</h3>
+          <p>Pre-flight static analyzer blocking catastrophic disk wipes (<code>rm -rf</code>), format attempts, fork bombs, netcat reverse shells, and force-pushes.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔍</div>
+          <h3>Git Diff Blast-Radius</h3>
+          <p>Quantifies structural patch risk (0–100 score). Detects sensitive file touches (<code>.env</code>, crypto), private key exposures, and code churn.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">📦</div>
+          <h3>Slopsquatting Shield</h3>
+          <p>Guards against AI-hallucinated packages using Damerau-Levenshtein edit distance and LLM synthetic naming pattern recognition.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🧬</div>
+          <h3>Molecular CoT Topology</h3>
+          <p>Grounded in arXiv:2601.06002. Evaluates Covalent, Hydrogen, and Van der Waals bonds to detect cognitive drift and ensure monotonic entropy reduction.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🛡️</div>
+          <h3>Prompt Injection Quarantine</h3>
+          <p>Strips indirect prompt injections, hidden HTML directives, and zero-width steganography before untrusted content enters agent context.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">📊</div>
+          <h3>Incident & Reputation Ledger</h3>
+          <p>Embedded zero-dependency SQLite ledger tracking historical security violations and calculating dynamic Agent Trust Scores (0–100).</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="quickstart" style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px;">
+      <h2>Native Model Context Protocol (MCP) Setup</h2>
+      <p style="color: var(--muted); margin-bottom: 12px;">Add AegisAgent natively to your Claude Desktop, Antigravity, or Cursor environment:</p>
+
+      <pre><code>// claude_desktop_config.json or mcpSettings.json
+{
+  "mcpServers": {
+    "aegis": {
+      "command": "aegis",
+      "args": ["mcp"]
+    }
+  }
+}</code></pre>
+    </section>
+
+    <footer style="margin-top: 60px; padding: 24px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; text-align: center;">
+      Built with clean-room precision by <a href="https://github.com/dhaulagani">@dhaulagani</a> • <a href="https://github.com/dhaulagani/aegis-agent/wiki">Official Wiki</a> • Open Source under MIT License
+    </footer>
+  </main>
+
+  <script>
+    const DEMOS = {
+      shield: `$ aegis shield "rm -rf /var/log && git push --force origin main"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡ AGENT COMMAND PRE-FLIGHT AUDIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Command : rm -rf /var/log && git push --force origin main
+Verdict : \x1b[31mBLOCKED\x1b[0m (Risk: 100/100)
+
+Violations Flagged:
+  \x1b[31m• [BLOCKED] Root/home destructive wipe (rm -rf / or ~)\x1b[0m
+  \x1b[31m• [BLOCKED] Destructive force-push to production master/main branch\x1b[0m
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+
+      quarantine: `$ aegis quarantine issue_comment.md --strict
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🛡️  PROMPT INJECTION & INGESTION QUARANTINE SHIELD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Threat Status   : \x1b[31mHIGH THREAT BLOCKED\x1b[0m
+Threat Count    : 2 flagged items
+Sanitized Size  : 240 characters
+
+⚠️  DETECTED INJECTION VECTORS:
+  • [INDIRECT_PROMPT_INJECTION] Instruction override attempt detected
+  • [HIDDEN_HTML_DIRECTIVE] Hidden HTML comment directive stripped
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+
+      topology: `$ aegis topology reasoning_trace.log
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧬 MOLECULAR CoT REASONING TOPOLOGY & ENTROPY AUDITOR
+   Based on arXiv:2601.06002 (The Molecular Structure of Thought)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Total Steps     : 6 reasoning nodes
+Isomer State    : \x1b[32m[STABLE ISOMER / CONVERGENT]\x1b[0m
+Entropy Trend   : MONOTONIC_DECREASING
+
+Bond Distribution Ratio:
+  • Covalent (Deep-Reasoning)  : 67% (Target: 60-75%)
+  • Hydrogen (Self-Reflection) : 17% (Target: 15-25%)
+  • Van der Waals (Exploration): 16% (Target: 10-20%)
+
+💡 STRUCTURAL OPTIMIZATIONS:
+  ▸ Reasoning topology matches optimal molecular isomer bounds. Safe for execution.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+
+      canary: `$ aegis canary generate --type github --id trap_fixture_01
+
+🍯 GENERATED VERIFIABLE CANARY TOKEN:
+Type       : GITHUB
+Identifier : trap_fixture_01
+Token      : ghp_f81acc87c9a50cc4e1b7e4edf7e5b2198647
+Signature  : c9a50cc4
+Notice     : Plant this token in fake configs to catch unauthorized agent exfiltration.
+
+$ aegis canary verify --token "ghp_f81acc87c9a50cc4e1b7e4edf7e5b2198647"
+Result     : \x1b[32m✓ AUTHENTIC AEGIS CANARY HONEYTOKEN\x1b[0m`,
+
+      ledger: `$ aegis ledger --agent claude-code
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 AGENT REPUTATION & INCIDENT LEDGER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Agent Target    : claude-code
+Trust Score     : \x1b[32m95/100 [HIGHLY TRUSTED]\x1b[0m
+Total Audits    : 42 | Clean: 40 | Violations: 2
+Violation Breakdown: CRITICAL=0, HIGH=1, MED=1, LOW=0
+
+Recent Security Incidents:
+  [HIGH] BLAST_RADIUS_VIOLATION - Sensitive file touched (.env.production)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+
+      gate: `$ git diff | aegis gate - --files src/app.py --strict
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚢 ADVERSARIAL PRE-SHIP VERIFICATION GATES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Ship Verdict    : \x1b[32m[SHIP GATES PASSED (Score: 100/100)]\x1b[0m
+Checks Cleared  : 3/3
+
+Verification Checkpoints:
+  ✓ Blast Radius Threshold: Blast radius risk score acceptable (12/100)
+  ✓ Canary Honeytoken Leakage: No canary trap tokens detected in patch
+  ✓ AST Cyclomatic Complexity: All functions pass complexity threshold (<= 15)
+
+🛡️  Required Remediations:
+  ▸ All ship gates cleared. Changes verified safe for deployment or PR merge.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
+    };
+
+    function colorize(text) {
+      return text
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/\x1b\[31m/g, '<span style="color:#ef4444;font-weight:bold;">')
+        .replace(/\x1b\[32m/g, '<span style="color:#10b981;font-weight:bold;">')
+        .replace(/\x1b\[0m/g, '</span>');
+    }
+
+    function showDemo(name) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.innerText.toLowerCase().includes(name));
+      if (activeBtn) activeBtn.classList.add('active');
+      document.getElementById('term-output').innerHTML = '<pre>' + colorize(DEMOS[name]) + '</pre>';
+    }
+
+    // Init with shield
+    showDemo('shield');
+  </script>
+</body>
+</html>

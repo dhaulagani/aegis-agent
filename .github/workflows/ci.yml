@@ -43,3 +43,6 @@ jobs:
           python -m aegis canary generate --type github
           python -m aegis canary verify --token "ghp_randomfaketoken"
           python -m aegis topology tests/test_topology.py
+          python -m aegis quarantine tests/test_quarantine.py
+          python -m aegis ledger --limit 5
+          python -m aegis gate tests/test_gate.py

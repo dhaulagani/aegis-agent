@@ -35,6 +35,10 @@ As autonomous AI coding agents gain direct terminal and file-system write privil
 - **⚡ Agent Pre-Flight Command Shield**: Static risk analyzer for agent shell commands before terminal dispatch. Blocks wipe commands, raw disk writes, and force-pushes.
 - **🍯 Verifiable Honeytoken Generator**: Creates authentic-looking canary credentials (AWS, GitHub, OpenAI) with embedded offline HMAC checksums to detect data leaks and unauthorized training harvesting.
 - **🧬 Molecular CoT Reasoning Topology (arXiv:2601.06002)**: Audits AI Agent Chain-of-Thought traces into Covalent (Deep-Reasoning), Hydrogen (Self-Reflection), and Van der Waals (Exploration) bonds to measure semantic isomer stability and ensure monotonic entropy reduction.
+- **🛡️ Prompt Injection Quarantine**: Ingestion sanitizer neutralizing indirect prompt injections, hidden HTML comment directives, and invisible zero-width steganography before text enters agent context.
+- **📊 Persistent Incident & Agent Reputation Ledger**: Embedded zero-dependency SQLite ledger tracking agent trust scores (0-100) and forensic security violation logs over time.
+- **🚢 Adversarial Pre-Ship Verification Gates**: Multi-checkpoint gate auditing AST cyclomatic complexity (<= 15), canary leakages, and blast radius before commits/PRs.
+- **🔌 Native Model Context Protocol (MCP) Server**: Stdlib JSON-RPC 2.0 server exposing all Aegis tools natively to Claude Code, Antigravity, Cursor, and Codex.
 - **🎨 ANSI Terminal UI & JSON Mode**: Beautiful terminal dashboards for humans and machine-parseable JSON for CI/CD pipelines.
 
 ---
@@ -279,6 +283,52 @@ Bond Distribution Ratio:
   ▸ Reasoning topology matches optimal molecular isomer bounds. Safe for execution.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
+
+### 6. Sanitize Untrusted Inputs from Prompt Injection
+Clean external text (issues, web pages, PR comments) before supplying to agent prompts:
+
+```bash
+aegis quarantine issue_body.md --strict
+```
+
+### 7. View Agent Reputation & Incident Ledger
+Inspect historical violations and compute agent trust scores:
+
+```bash
+aegis ledger --limit 10
+```
+
+### 8. Run Adversarial Pre-Ship Verification Gates
+Audit staged diffs and modified files for complexity, canary leaks, and blast radius:
+
+```bash
+git diff | aegis gate - --files src/app.py --strict
+```
+
+### 9. Native Model Context Protocol (MCP) Server
+Launch the built-in MCP server for native integration with Claude Code, Antigravity, Cursor, or Codex:
+
+```bash
+aegis mcp
+```
+
+Add to your MCP client configuration (`claude_desktop_config.json` or `mcpSettings.json`):
+```json
+{
+  "mcpServers": {
+    "aegis": {
+      "command": "aegis",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+---
+
+## 📚 Documentation & Wiki
+
+For deep-dive architectural specifications, security threat models, and integration guides, visit the official **[AegisAgent GitHub Wiki](https://github.com/dhaulagani/aegis-agent/wiki)**.
 
 ---
 

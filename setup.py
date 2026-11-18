@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="aegis-agent",
-    version="1.0.0",
+    version="1.2.0",
     description="Autonomous AI Coding Agent Safety, Blast-Radius Auditor & Hallucination Shield",
     author="dhaulagani",
     packages=find_packages(),

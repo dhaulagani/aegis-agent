@@ -19,6 +19,8 @@ from .blast_radius import BlastRadiusReport
 from .slop_detector import SlopScanReport
 from .command_shield import CommandAuditResult
 from .topology import TopologyReport, BondType
+from .quarantine import QuarantineResult
+from .gate import ShipGateReport
 
 # ANSI Color Codes
 RESET = "\033[0m"
@@ -195,4 +197,112 @@ def render_topology_report(report: TopologyReport, json_output: bool = False):
         print()
 
     print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+
+
+def render_quarantine_report(result: QuarantineResult, json_output: bool = False):
+    if json_output:
+        print(json.dumps(result.to_dict(), indent=2))
+        return
+
+    print_banner()
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+    print(f"{BOLD}🛡️  PROMPT INJECTION & INGESTION QUARANTINE SHIELD{RESET}")
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+
+    if result.is_clean:
+        status_badge = f"{GREEN}{BOLD}[CLEAN / VERIFIED]{RESET}"
+    elif result.threat_level == "HIGH_THREAT":
+        status_badge = f"{BG_RED}{WHITE}{BOLD} HIGH THREAT BLOCKED {RESET}"
+    else:
+        status_badge = f"{YELLOW}{BOLD}[SUSPICIOUS INSTRUCTION]{RESET}"
+
+    print(f"Threat Status   : {status_badge}")
+    print(f"Threat Count    : {BOLD}{result.threat_count}{RESET} flagged items")
+    print(f"Sanitized Size  : {len(result.sanitized_text)} characters")
+
+    if result.detected_threats:
+        print()
+        print(f"{BOLD}⚠️  DETECTED INJECTION VECTORS:{RESET}")
+        for t in result.detected_threats:
+            print(f"  {RED}•{RESET} {t}")
+
+    print()
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+
+
+def render_ledger_report(rep: Dict[str, Any], incidents: list, json_output: bool = False):
+    if json_output:
+        print(json.dumps({"reputation": rep, "recent_incidents": incidents}, indent=2))
+        return
+
+    print_banner()
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+    print(f"{BOLD}📊 AGENT REPUTATION & INCIDENT LEDGER{RESET}")
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+    score = rep["trust_score"]
+    if score >= 85:
+        badge = f"{GREEN}{BOLD}{score}/100 [HIGHLY TRUSTED]{RESET}"
+    elif score >= 60:
+        badge = f"{YELLOW}{BOLD}{score}/100 [NEEDS SUPERVISION]{RESET}"
+    else:
+        badge = f"{RED}{BOLD}{score}/100 [UNTRUSTED / HIGH RISK]{RESET}"
+
+    print(f"Agent Target    : {CYAN}{BOLD}{rep['agent_id']}{RESET}")
+    print(f"Trust Score     : {badge}")
+    print(f"Total Audits    : {BOLD}{rep['total_actions']}{RESET} | Clean: {GREEN}{rep['clean_actions']}{RESET} | Violations: {RED}{rep['total_violations']}{RESET}")
+    print(f"Violation Breakdown: CRITICAL={RED}{rep['breakdown']['CRITICAL']}{RESET}, HIGH={YELLOW}{rep['breakdown']['HIGH']}{RESET}, MED={rep['breakdown']['MEDIUM']}, LOW={rep['breakdown']['LOW']}")
+
+    if incidents:
+        print()
+        print(f"{BOLD}Recent Security Incidents ({len(incidents)}):{RESET}")
+        for inc in incidents[:5]:
+            sev_color = RED if inc["severity"] in ["CRITICAL", "HIGH"] else YELLOW
+            print(f"  {sev_color}[{inc['severity']}]{RESET} {BOLD}{inc['event_type']}{RESET} - {inc.get('details', '')[:80]}")
+            if inc.get("target"):
+                print(f"      {DIM}Target: {inc['target'][:70]}{RESET}")
+
+    print()
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+
+
+def render_gate_report(report: ShipGateReport, json_output: bool = False):
+    if json_output:
+        print(json.dumps(report.to_dict(), indent=2))
+        return
+
+    print_banner()
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+    print(f"{BOLD}🚢 ADVERSARIAL PRE-SHIP VERIFICATION GATES{RESET}")
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+
+    if report.status == "PASSED":
+        badge = f"{GREEN}{BOLD}[SHIP GATES PASSED (Score: {report.gate_score}/100)]{RESET}"
+    elif report.status == "WARNING":
+        badge = f"{YELLOW}{BOLD}[SHIP WARNINGS DETECTED (Score: {report.gate_score}/100)]{RESET}"
+    else:
+        badge = f"{BG_RED}{WHITE}{BOLD} GATES FAILED (Score: {report.gate_score}/100) {RESET}"
+
+    print(f"Ship Verdict    : {badge}")
+    print(f"Checks Cleared  : {BOLD}{report.to_dict()['passed_checks']}/{report.to_dict()['total_checks']}{RESET}")
+    print()
+    print(f"{BOLD}Verification Checkpoints:{RESET}")
+    for c in report.checks:
+        icon = f"{GREEN}✓{RESET}" if c.passed else f"{RED}✗{RESET}"
+        print(f"  {icon} {BOLD}{c.name}{RESET}: {DIM}{c.details}{RESET}")
+
+    if report.violations:
+        print()
+        print(f"{BOLD}🚨 Violations Blocking Ship:{RESET}")
+        for v in report.violations:
+            print(f"  {RED}•{RESET} {v}")
+
+    if report.remediations:
+        print()
+        print(f"{BOLD}🛡️  Required Remediations:{RESET}")
+        for r in report.remediations:
+            print(f"  {CYAN}▸{RESET} {r}")
+
+    print()
+    print(f"{BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
+
 
