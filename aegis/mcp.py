@@ -4,10 +4,12 @@ Complies with MCP JSON-RPC 2.0 specification over stdio.
 Zero external dependencies. Pure standard library.
 """
 
+from __future__ import annotations
+
 import sys
 import json
 import traceback
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 from .blast_radius import analyze_diff
 from .slop_detector import scan_dependencies
@@ -135,7 +137,7 @@ def handle_tool_call(name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
         }
 
 
-def process_message(msg: Dict[str, Any]) -> Dict[str, Any] | None:
+def process_message(msg: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Process a single incoming JSON-RPC 2.0 message."""
     msg_id = msg.get("id")
     method = msg.get("method")
